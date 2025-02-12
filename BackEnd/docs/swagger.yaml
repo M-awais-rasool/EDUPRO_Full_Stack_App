@@ -1,0 +1,97 @@
+definitions:
+  models.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample server for a demo application
+  title: Demo API
+  version: "1.0"
+paths:
+  /Auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: User Login Details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+      summary: User Login
+      tags:
+      - Auth
+  /Auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Gender (male/female)
+        in: formData
+        name: gender
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phoneNo
+        required: true
+        type: string
+      - description: Date of Birth (YYYY-MM-DD)
+        in: formData
+        name: dob
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Image upload failed
+        "500":
+          description: Internal Server Error
+      summary: Sign up a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
