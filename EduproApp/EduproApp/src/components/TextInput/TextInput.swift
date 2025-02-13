@@ -15,6 +15,7 @@ struct TextInput: View {
     @State var isPasswordVisible = true
     @State var fieldType = "email"
     @Binding var errorMessage:String?
+    var keyboardType: UIKeyboardType = .default
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -26,6 +27,7 @@ struct TextInput: View {
                 if isPasswordVisible {
                     TextField(label, text: $text)
                         .autocapitalization(.none)
+                        .keyboardType(keyboardType)
                 } else {
                     SecureField(label, text: $text)
                         .autocapitalization(.none)

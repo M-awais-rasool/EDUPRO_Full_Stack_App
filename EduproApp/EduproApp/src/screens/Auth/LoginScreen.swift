@@ -6,7 +6,31 @@ struct LoginScreen: View {
     @State private var isPasswordVisible = false
     @State private var emailError: String? = nil
     @State private var passwordError: String? = nil
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @AppStorage("isLogin") private var isLogin = false
     let screenWidth = UIScreen.main.bounds.width
+    
+    func doLogin()async{
+        do{
+            let body = ["email":email,"password":password]
+            let res = try await loginApi(body: body)
+            let defaults = UserDefaults.standard
+            if res.status == "success"{
+                defaults.set(res.data.token, forKey: "token")
+                defaults.set(res.data.userId, forKey: "userId")
+                defaults.set(res.data.name, forKey: "name")
+                toastMessage = "Login successful!"
+                showToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    isLogin = true
+                }            }
+        }catch{
+            toastMessage = error.localizedDescription
+            showToast = true
+            print(error.localizedDescription)
+        }
+    }
     
     var body: some View {
         VStack(spacing: 32) {
@@ -44,7 +68,11 @@ struct LoginScreen: View {
             
             Buttons(label: "Sign In", onPress: {
                 withAnimation {
-                    validateFields()
+                    if validateFields() {
+                        Task{
+                            await doLogin()
+                        }
+                    }
                 }
             })
             
@@ -80,11 +108,21 @@ struct LoginScreen: View {
         }
         .padding(.vertical)
         .padding(.horizontal,20)
+        .toast(isShowing: $showToast, message: toastMessage)
     }
     
-    private func validateFields() {
-        emailError = isValidEmail(email) ? nil : "*Please enter a valid email"
-        passwordError = password.count >= 6 ? nil : "*Password must be at least 6 characters"
+    private func validateFields() ->Bool {
+        emailError = ""
+        passwordError = ""
+        if !isValidEmail(email){
+            emailError =  "*Please enter a valid email"
+            return false
+        }
+        else if password.count < 6{
+            passwordError =  "*Password must be at least 6 characters"
+            return false
+        }
+        return true
     }
     
     private func isValidEmail(_ email: String) -> Bool {

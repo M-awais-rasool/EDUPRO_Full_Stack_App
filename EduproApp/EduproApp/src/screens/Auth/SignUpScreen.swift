@@ -75,7 +75,8 @@ struct SignUpScreen: View {
                             text: $phoneNumber,
                             label: "Enter PhoneNo",
                             icon: "phone",
-                            errorMessage: $phoneError
+                            errorMessage: $phoneError,
+                            keyboardType:.numberPad
                         )
                         
                         Menu {
