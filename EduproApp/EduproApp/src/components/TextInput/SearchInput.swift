@@ -9,17 +9,21 @@ import SwiftUI
 
 struct SearchInput: View {
     @Binding var Text : String
+    @State var iconFlag = true
+    
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             TextField("Search for..", text: $Text)
-            Button(action: {}) {
-                Image(systemName: "slider.horizontal.3")
-                    .foregroundColor(.white)
-                    .padding(8)
-                    .background(Color.blue)
-                    .cornerRadius(8)
+            if iconFlag {
+                NavigationLink(destination: SearchScreen()){
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
             }
         }
         .padding(.vertical,10)

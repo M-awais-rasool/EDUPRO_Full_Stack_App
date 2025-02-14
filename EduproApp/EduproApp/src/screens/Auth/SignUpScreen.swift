@@ -1,4 +1,6 @@
 import SwiftUI
+import PhotosUI
+import AVFoundation
 
 struct SignUpScreen: View {
     @State private var name: String = ""
@@ -17,6 +19,12 @@ struct SignUpScreen: View {
     @State private var genderError: String?
     @State private var dobError: String?
     
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @State private var isShowingImagePicker = false
+    @State private var isCameraSelected = false
+    @State private var selectedImage: UIImage? = nil
+    
     let genderOptions = ["Male", "Female"]
     
     var body: some View {
@@ -24,22 +32,24 @@ struct SignUpScreen: View {
             ScrollView {
                 VStack(spacing: 20) {
                     Spacer()
-                    Circle()
-                        .fill(Color.gray.opacity(0.1))
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 40)
-                                .foregroundColor(.gray.opacity(0.3))
-                        )
-                        .overlay(
-                            Image(systemName: "pencil.circle.fill")
-                                .foregroundColor(.teal)
-                                .offset(x: 30, y: 35)
-                                .font(.system(size: 30))
-                        )
+                    Button(action: showImageSourceAlert) {
+                        Circle()
+                            .fill(Color.gray.opacity(0.1))
+                            .frame(width: 100, height: 100)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 40)
+                                    .foregroundColor(.gray.opacity(0.3))
+                            )
+                            .overlay(
+                                Image(systemName: "pencil.circle.fill")
+                                    .foregroundColor(.teal)
+                                    .offset(x: 30, y: 35)
+                                    .font(.system(size: 30))
+                            )
+                    }
                     Spacer()
                     VStack(alignment: .leading, spacing: 16) {
                         TextInput(
@@ -127,6 +137,13 @@ struct SignUpScreen: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $isShowingImagePicker) {
+            if isCameraSelected {
+                ImagePicker(sourceType: .camera, selectedImage: $selectedImage)
+            } else {
+                ImagePicker(sourceType: .photoLibrary, selectedImage: $selectedImage)
+            }
+        }
     }
     
     func validateForm() {
@@ -147,6 +164,68 @@ struct SignUpScreen: View {
         let phoneRegex = "^[0-9]{10,}$"
         return NSPredicate(format: "SELF MATCHES %@", phoneRegex).evaluate(with: phone)
     }
+    
+    private func showImageSourceAlert() {
+        let alert = UIAlertController(title: "Select Image Source", message: nil, preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Camera", style: .default) { _ in
+            requestCameraPermission()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Gallery", style: .default) { _ in
+            requestPhotoLibraryPermission()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    private func requestCameraPermission() {
+        AVCaptureDevice.requestAccess(for: .video) { response in
+            if response {
+                DispatchQueue.main.async {
+                    isCameraSelected = true
+                    isShowingImagePicker = true
+                }
+            } else {
+                showPermissionDeniedAlert(for: "camera")
+            }
+        }
+    }
+    
+    private func requestPhotoLibraryPermission() {
+        PHPhotoLibrary.requestAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized:
+                    isCameraSelected = false
+                    isShowingImagePicker = true
+                case .denied, .restricted:
+                    showPermissionDeniedAlert(for: "photo library")
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    private func showPermissionDeniedAlert(for resource: String) {
+        let alertController = UIAlertController(
+            title: "Permission Denied",
+            message: "You need to allow access to the \(resource) in order to use this feature.",
+            preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
 }
 
 #Preview {

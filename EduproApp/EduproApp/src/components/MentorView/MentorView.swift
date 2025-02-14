@@ -8,14 +8,36 @@
 import SwiftUI
 struct MentorView: View {
     let name: String
+    let field:String
+    let flag:String
     
     var body: some View {
-        VStack {
-            Circle()
-                .fill(Color.gray.opacity(0.2))
-                .frame(width: 60, height: 60)
-            Text(name)
-                .font(.subheadline)
+        if flag == "home"{
+            VStack {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 60, height: 60)
+                Text(name)
+                    .font(.subheadline)
+            }
+        }else{
+            HStack {
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 60, height: 60)
+                VStack(alignment: .leading){
+                    Text(name)
+                        .font(.title3)
+                        .fontWeight(.medium)
+                    Text(field)
+                        .font(.subheadline)
+                }
+            }
         }
     }
+}
+
+
+#Preview {
+    TopMentors()
 }
