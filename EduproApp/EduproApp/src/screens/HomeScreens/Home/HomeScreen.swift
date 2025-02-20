@@ -12,6 +12,10 @@ struct HomeScreen: View {
     @State private var selectedCategory: String = "All"
     
     let categories = ["All", "Graphic Design", "3D Design", "Arts & H"]
+    let courses: [HomeCourseModel] = [
+        HomeCourseModel(title: "Graphic Design Advanced", category: "Graphic Design", price: "850", rating: "4.2", students: "7830 Std"),
+        HomeCourseModel(title: "Advertisement", category: "Graphic Design", price: "400", rating: "4.2", students: "7830 Std")
+    ]
     
     var body: some View {
         NavigationView{
@@ -81,21 +85,20 @@ struct HomeScreen: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 20) {
-                                HomeCourseCard(
-                                    title: "Graphic Design Advanced",
-                                    category: "Graphic Design",
-                                    price: "850/-",
-                                    rating: "4.2",
-                                    students: "7830 Std"
-                                )
-                                HomeCourseCard(
-                                    title: "Advertisement",
-                                    category: "Graphic Design",
-                                    price: "400/-",
-                                    rating: "4.2",
-                                    students: "7830 Std"
-                                )
-                            }.padding(10)
+                                ForEach(courses) { course in
+                                    NavigationLink(destination: CourseDetailScreen(course: course)) {
+                                        HomeCourseCard(
+                                            title: course.title,
+                                            category: course.category,
+                                            price: course.price,
+                                            rating: course.rating,
+                                            students: course.students
+                                        )
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            .padding(10)
                         }
                         
                         SectionHeader(title: "Top Mentor", destination: AnyView(TopMentors()))

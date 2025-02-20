@@ -16,11 +16,9 @@ struct HomeCourseCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Rectangle()
-                .fill(Color.gray.opacity(0.2))
+            Image("images")
                 .frame(width: 260,height: 120)
                 .cornerRadius(10)
-            
             Text(category)
                 .font(.subheadline)
                 .foregroundColor(.orange)
