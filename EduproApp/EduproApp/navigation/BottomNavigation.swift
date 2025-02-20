@@ -18,9 +18,14 @@ struct BottomNavigation: View {
                     Image(systemName: selectedTab == 1 ? "book.fill" : "book")
                     Text("My Courses")
                 }
-            
-            ProfileScreen()
+            BookmarkScreen()
                 .tag(2)
+                .tabItem {
+                    Image(systemName: selectedTab == 2 ? "bookmark.fill" : "bookmark")
+                    Text("Bookmark")
+                }
+            ProfileScreen()
+                .tag(3)
                 .tabItem {
                     Image(systemName: selectedTab == 2 ? "person.fill" : "person")
                     Text("Profile")
@@ -37,7 +42,7 @@ struct BottomNavigation: View {
                     .offset(y: -49)
             }
         )
-        .tint(Color(hex: "167F71"))
+        .tint(.blue)
     }
 }
 
