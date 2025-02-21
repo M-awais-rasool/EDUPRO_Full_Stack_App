@@ -20,29 +20,29 @@ struct HomeScreen: View {
     var body: some View {
         NavigationView{
             VStack {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Hi, ALEX")
-                            .font(.title)
-                            .fontWeight(.bold)
-                        Text("What Would you like to learn Today?")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        Text("Search Below.")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
+                HStack{
+                    Text("Hi, ALEX")
+                        .font(.title)
+                        .fontWeight(.bold)
                     Spacer()
-                    
-                    Button(action: {}) {
+                    NavigationLink(destination: NotificationsScreen()){
                         Image(systemName: "bell")
                             .font(.title2)
                             .foregroundColor(.gray)
                     }
-                }
+                } .padding(.bottom,-3)
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading){
+                            Text("What Would you like to learn Today?")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text("Search Below.")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        
                         SearchInput(Text: $searchText)
                         
                         VStack(alignment: .leading) {

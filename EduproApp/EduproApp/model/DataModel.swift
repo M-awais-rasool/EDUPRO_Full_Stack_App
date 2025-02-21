@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 struct CourseSection: Identifiable {
     let id = UUID()
@@ -75,4 +75,90 @@ let detailSections:[CourseSection] = [
             CourseModule(number: "02", title: "Setup Your Graphic De..", duration: "10 Mins", isLocked: false)
         ]
     ),
+]
+
+let ratings = [
+    (name: "John Smith", rating: 5.0, date: "Jan 15, 2025", comment: "Excellent course! Clear explanation and great projects."),
+    (name: "Emma Watson", rating: 4.5, date: "Feb 3, 2025", comment: "Very informative and well-structured. Would recommend to anyone interested in graphic design."),
+    (name: "Michael Brown", rating: 3.5, date: "Jan 28, 2025", comment: "Good content but some sections could use more examples."),
+    (name: "Sarah Johnson", rating: 5.0, date: "Feb 10, 2025", comment: "Exactly what I needed to advance my career. The instructor is amazing!")
+]
+
+let courses = [
+    (category: "Graphic Design", title: "Graphic Design Advanced", price: "799", rating: 4.2, students: 7830, isFeatured: true),
+    (category: "Graphic Design", title: "Advertisement Design", price: "499", rating: 3.9, students: 12680, isFeatured: false),
+    (category: "Programming", title: "Graphic Design", price: "199", rating: 4.2, students: 990, isFeatured: true),
+    (category: "Web Development", title: "Web Developer Specialization", price: "899", rating: 4.9, students: 14580, isFeatured: false),
+    (category: "SEO & Marketing", title: "Digital Marketing Career Track", price: "299", rating: 4.2, students: 10252, isFeatured: true),
+    (category: "SEO & Marketing", title: "Digital Marketing Track", price: "299", rating: 4.2, students: 10252, isFeatured: true)
+]
+
+
+//notification screen
+struct NotificationItem: Identifiable {
+    let id = UUID()
+    let icon: String
+    let iconBackgroundColor: Color
+    let iconForegroundColor: Color
+    let title: String
+    let message: String
+}
+
+struct NotificationSection: Identifiable {
+    let id = UUID()
+    let title: String
+    let items: [NotificationItem]
+}
+
+let notificationSections: [NotificationSection] = [
+    NotificationSection(
+        title: "Today",
+        items: [
+            NotificationItem(
+                icon: "square.grid.2x2",
+                iconBackgroundColor: .white,
+                iconForegroundColor: .blue,
+                title: "New Category Course.!",
+                message: "New the 3D Design Course is Availa.."
+            ),
+            NotificationItem(
+                icon: "tv.fill",
+                iconBackgroundColor: .blue,
+                iconForegroundColor: .white,
+                title: "New Category Course.!",
+                message: "New the 3D Design Course is Availa..."
+            ),
+            NotificationItem(
+                icon: "ticket",
+                iconBackgroundColor: .white,
+                iconForegroundColor: .blue,
+                title: "Today's Special Offers",
+                message: "You Have made a Coure Payment."
+            )
+        ]
+    ),
+    NotificationSection(
+        title: "Yesterday",
+        items: [
+            NotificationItem(
+                icon: "creditcard",
+                iconBackgroundColor: .white,
+                iconForegroundColor: .blue,
+                title: "Credit Card Connected.!",
+                message: "Credit Card has been Linked.!"
+            )
+        ]
+    ),
+    NotificationSection(
+        title: "Nov 20, 2022",
+        items: [
+            NotificationItem(
+                icon: "person.circle",
+                iconBackgroundColor: .white,
+                iconForegroundColor: .blue,
+                title: "Account Setup Successful.!",
+                message: "Your Account has been Created."
+            )
+        ]
+    )
 ]

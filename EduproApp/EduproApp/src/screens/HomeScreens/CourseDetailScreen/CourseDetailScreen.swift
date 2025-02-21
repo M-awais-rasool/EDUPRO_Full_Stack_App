@@ -26,9 +26,6 @@ struct CourseDetailScreen: View {
                     CourseInfoView(course: course, selectedTab: $selectedTab, namespace: tabAnimation)
                     
                     InstructorView(instructorName: "Robert Jr", category: "Graphic Design",benefits: benefits)
-                    VStack(alignment: .leading, spacing: 12) {
-                        
-                    }
                     Spacer()
                 }
             }
@@ -39,9 +36,9 @@ struct CourseDetailScreen: View {
                         presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "arrow.backward")
-                            .font(.system(size: 22))
+                            .font(.system(size: 20))
                             .foregroundColor(.white)
-                            .padding()
+                            .padding(10)
                             .background(Color.black.opacity(0.5))
                             .clipShape(Circle())
                     }
@@ -280,40 +277,30 @@ struct InstructorView: View {
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.black)
             
-            HStack(spacing: 16) {
-                Image("instructor-placeholder")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(Circle())
-                    .background(
-                        Circle()
-                            .fill(Color.gray.opacity(0.2))
-                    )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(instructorName)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.black)
-                    
-                    Text(category)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                }
-                
-                Spacer()
-                
-                Button(action: {}) {
-                    Image(systemName: "message")
-                        .font(.system(size: 18))
-                        .foregroundColor(.black)
-                        .padding(12)
+            NavigationLink (destination: UserProfile()){
+                HStack(spacing: 16) {
+                    Image("instructor-placeholder")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
                         .background(
                             Circle()
-                                .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                                .fill(Color.gray.opacity(0.2))
                         )
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(instructorName)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.black)
+                        
+                        Text(category)
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                    }
                 }
             }
+            
             Divider()
                 .padding(.leading, 75)
             Text("What You’ll Get")

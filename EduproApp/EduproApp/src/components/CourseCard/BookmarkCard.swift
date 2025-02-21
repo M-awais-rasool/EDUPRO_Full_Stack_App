@@ -88,11 +88,9 @@ struct BookmarkCard: View {
             }
             Spacer()
         }
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 2)
-        )
+        .background(.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         .frame(height: 120)
     }
 }
