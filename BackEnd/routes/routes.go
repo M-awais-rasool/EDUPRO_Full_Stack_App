@@ -16,9 +16,13 @@ func SetRoutes() *gin.Engine {
 
 	router.POST("/Course/add-Course", handlers.AddCourse)
 	router.GET("/Course/get-courses", handlers.GetCourse)
-	router.GET("/Course/get-course/:id", handlers.GetCourseById)
+	router.GET("/Course/get-course-details/:id", handlers.GetCourseDetailsById)
 
 	router.GET("/mentor/get-mentors", handlers.GetMentors)
+
+	router.POST("/bookmarks/add-bookMark/:id", handlers.AddBookMark)
+	router.DELETE("/bookmarks/remove-bookMark/:id", handlers.RemoveBookMark)
+	router.GET("/bookmarks/get-bookMarks", handlers.GetBookMarks)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router

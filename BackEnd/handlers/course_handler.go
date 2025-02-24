@@ -152,8 +152,8 @@ func GetCourse(c *gin.Context) {
 // @Failure 401 "Unauthorized"
 // @Failure 404 "Course not found"
 // @Failure 500 "Internal Server Error"
-// @Router /Course/get-course/{id} [get]
-func GetCourseById(c *gin.Context) {
+// @Router /Course/get-course-details/{id} [get]
+func GetCourseDetailsById(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	if token == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "token missing"})
