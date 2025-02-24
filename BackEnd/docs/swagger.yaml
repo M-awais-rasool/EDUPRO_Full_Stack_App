@@ -77,6 +77,11 @@ paths:
         name: dob
         required: true
         type: string
+      - description: Is Mentor (true/false)
+        in: formData
+        name: isMentor
+        required: true
+        type: boolean
       produces:
       - application/json
       responses:
@@ -89,6 +94,120 @@ paths:
       summary: Sign up a new user
       tags:
       - Auth
+  /Course/add-Course:
+    post:
+      consumes:
+      - application/json
+      description: Add Course for the user
+      parameters:
+      - description: Category
+        in: formData
+        name: category
+        required: true
+        type: string
+      - description: Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Invalid input data
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Add Course
+      tags:
+      - Course
+  /Course/get-course/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get course by ID
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "404":
+          description: Course not found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get Course By ID
+      tags:
+      - Course
+  /Course/get-courses:
+    get:
+      consumes:
+      - application/json
+      description: Get all available courses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get All Courses
+      tags:
+      - Course
+  /mentor/get-mentors:
+    get:
+      consumes:
+      - application/json
+      description: Get all users who are mentors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Invalid input data
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get all mentors
+      tags:
+      - Mentors
 securityDefinitions:
   BearerAuth:
     in: header

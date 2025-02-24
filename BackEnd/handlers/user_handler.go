@@ -87,6 +87,7 @@ func Login(c *gin.Context) {
 // @Param gender formData string true "Gender (male/female)"
 // @Param phoneNo formData string true "Phone Number"
 // @Param dob formData string true "Date of Birth (YYYY-MM-DD)"
+// @Param isMentor formData boolean true "Is Mentor (true/false)"
 // @Success 200 "Success"
 // @Failure 400 "Image upload failed"
 // @Failure 500 "Internal Server Error"
@@ -98,22 +99,23 @@ func SignUp(c *gin.Context) {
 	gender := c.PostForm("gender")
 	phoneNo := c.PostForm("phoneNo")
 	dob := c.PostForm("dob")
+	isMentor := c.PostForm("isMentor")
 	file, fileHeader, err := c.Request.FormFile("image")
 
 	if name == "" || email == "" || password == "" || gender == "" || phoneNo == "" || dob == "" || err != nil {
 		log.Println("All fields are required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "All fields are required"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "All fields are required"})
 		return
 	}
 
 	if gender != "male" && gender != "female" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Gender must be either 'male' or 'female'"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Gender must be either 'male' or 'female'"})
 		return
 	}
 
 	_, err = time.Parse("2006-01-02", dob)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format. Use YYYY-MM-DD"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Invalid date format. Use YYYY-MM-DD"})
 		return
 	}
 
@@ -123,35 +125,35 @@ func SignUp(c *gin.Context) {
 	err = database.DB.QueryRow("SELECT COUNT(1) FROM Users WHERE email = ?", email).Scan(&exists)
 	if err != nil {
 		log.Println("Failed to check email:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check email"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to check email"})
 		return
 	}
 	if exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Email already exists"})
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println("Failed to hash password:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to hash password"})
 		return
 	}
 
 	imageURL, err := Upload_Image(c, file, fileHeader)
 	if err != nil {
 		log.Println("Failed to upload image:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload image"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to upload image"})
 		return
 	}
 
-	query := `INSERT INTO Users (id, name, email, password, image, gender, phoneNo, dob) 
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO Users (id, name, email, password, image, gender, phoneNo, dob, isMentor) 
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	id := uuid.NewString()
-	_, err = database.DB.Exec(query, id, name, email, string(hashedPassword), imageURL, gender, phoneNo, dob)
+	_, err = database.DB.Exec(query, id, name, email, string(hashedPassword), imageURL, gender, phoneNo, dob, isMentor)
 	if err != nil {
 		log.Println("Failed to insert data:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert data"})
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": "Failed to insert data"})
 		return
 	}
 

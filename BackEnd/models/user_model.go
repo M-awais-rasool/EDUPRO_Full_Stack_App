@@ -16,4 +16,5 @@ type StoreUser struct {
 	PhoneNo  string    `json:"PhoneNo"`
 	Dob      time.Time `json:"dob"`
 	Gender   string    `json:"gender"`
+	IsMentor bool      `json:"isMentor"`
 }

@@ -14,6 +14,12 @@ func SetRoutes() *gin.Engine {
 	router.POST("/Auth/login", handlers.Login)
 	router.POST("Auth/sign-up", handlers.SignUp)
 
+	router.POST("/Course/add-Course", handlers.AddCourse)
+	router.GET("/Course/get-courses", handlers.GetCourse)
+	router.GET("/Course/get-course/:id", handlers.GetCourseById)
+
+	router.GET("/mentor/get-mentors", handlers.GetMentors)
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }
