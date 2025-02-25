@@ -24,6 +24,10 @@ func SetRoutes() *gin.Engine {
 	router.DELETE("/bookmarks/remove-bookMark/:id", handlers.RemoveBookMark)
 	router.GET("/bookmarks/get-bookMarks", handlers.GetBookMarks)
 
+	router.GET("/Search/search-by-key/:key", handlers.SearchCoursesHandler)
+	router.GET("/Search/get-keyWords", handlers.GetKeyWord)
+	router.DELETE("/Search/delete-keyword/:id", handlers.DeleteKeyWord)
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
 }
