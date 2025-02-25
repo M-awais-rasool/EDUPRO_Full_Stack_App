@@ -34,6 +34,3 @@ struct SearchInput: View {
     }
 }
 
-#Preview {
-    HomeScreen()
-}

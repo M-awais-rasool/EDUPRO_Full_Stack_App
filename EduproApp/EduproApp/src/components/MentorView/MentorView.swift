@@ -7,6 +7,7 @@
 
 import SwiftUI
 struct MentorView: View {
+    let image: String
     let name: String
     let field:String
     let flag:String
@@ -14,17 +15,37 @@ struct MentorView: View {
     var body: some View {
         if flag == "home"{
             VStack {
-                Circle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: 60, height: 60)
+                if let url = URL(string: image) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .cornerRadius(50)
+                    } placeholder: {
+                        ProgressView()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.black)
+                    }
+                }
                 Text(name)
                     .font(.subheadline)
             }
         }else{
             HStack {
-                Circle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(width: 60, height: 60)
+                if let url = URL(string: image) {
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .cornerRadius(50)
+                    } placeholder: {
+                        ProgressView()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.black)
+                    }
+                }
                 VStack(alignment: .leading){
                     Text(name)
                         .font(.title3)

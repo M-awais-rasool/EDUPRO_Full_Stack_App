@@ -24,6 +24,7 @@ struct RoundedCornerShape: Shape {
 
 
 struct BookmarkCard: View {
+    let image: String
     let category: String
     let title: String
     let price: String
@@ -33,13 +34,20 @@ struct BookmarkCard: View {
     
     var body: some View {
         HStack() {
-            Image("images")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 140, height: 120)
-                .clipShape(RoundedCornerShape(radius: 12, corners: [.topLeft, .bottomLeft]))
-                .clipped()
-            
+            if let url = URL(string: image) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 140, height: 120)
+                        .clipShape(RoundedCornerShape(radius: 12, corners: [.topLeft, .bottomLeft]))
+                        .clipped()
+                } placeholder: {
+                    ProgressView()
+                        .frame(width: 140, height: 120)
+                        .foregroundColor(.black)
+                }
+            }
             
             VStack(alignment: .leading) {
                 HStack() {

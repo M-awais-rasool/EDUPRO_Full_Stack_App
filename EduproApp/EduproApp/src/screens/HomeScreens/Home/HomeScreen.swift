@@ -1,120 +1,177 @@
-//
-//  HomeScreen.swift
-//  EduproApp
-//
-//  Created by Ch  A 𝔀 𝓪 𝓲 𝓼 on 12/02/2025.
-//
-
 import SwiftUI
 
 struct HomeScreen: View {
     @State private var searchText = ""
     @State private var selectedCategory: String = "All"
     
-    let categories = ["All", "Graphic Design", "3D Design", "Arts & H"]
-    let courses: [HomeCourseModel] = [
-        HomeCourseModel(title: "Graphic Design Advanced", category: "Graphic Design", price: "850", rating: "4.2", students: "7830 Std"),
-        HomeCourseModel(title: "Advertisement", category: "Graphic Design", price: "400", rating: "4.2", students: "7830 Std")
-    ]
+    
+    @State private var courses: [Course] = []
+    @State private var mentor: [Mentor] = []
+    
+    func GetData() async {
+        do {
+            async let coursesResult = GetHomeCourse()
+            async let mentorsResult = GetHomeMentors()
+            
+            let res = try await coursesResult
+            let mentorRes = try await mentorsResult
+            
+            if res.status == "success" {
+                courses = res.data
+            }
+            if mentorRes.status == "success" {
+                mentor = mentorRes.data
+            }
+        } catch {
+            print("Error fetching data: \(error.localizedDescription)")
+        }
+    }
+    
+    private var filteredCourses: [Course] {
+        if selectedCategory == "All" {
+            return courses
+        } else {
+            return courses.filter { $0.category == selectedCategory }
+        }
+    }
     
     var body: some View {
-        NavigationView{
+        NavigationStack {
             VStack {
-                HStack{
-                    Text("Hi, ALEX")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    Spacer()
-                    NavigationLink(destination: NotificationsScreen()){
-                        Image(systemName: "bell")
-                            .font(.title2)
-                            .foregroundColor(.gray)
-                    }
-                } .padding(.bottom,-3)
-                
+                headerSection
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
-                        VStack(alignment: .leading){
-                            Text("What Would you like to learn Today?")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Text("Search Below.")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
                         
-                        SearchInput(Text: $searchText)
+                        searchSection
+                        discountBanner
                         
-                        VStack(alignment: .leading) {
-                            Text("25% OFF*")
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Text("Today's Special")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            Text("Get a Discount for Every\nCourse Order only Valid for\nToday.!")
-                                .font(.subheadline)
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(
-                            Color.blue
-                                .cornerRadius(15)
-                        )
+                        SectionHeader(title: "Popular Courses", destination: AnyView(PopularCourses(courses:courses)))
                         
-                        SectionHeader(title: "Popular Courses", destination: AnyView(PopularCourses()))
+                        categoryFilter
+                        popularCourses
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                ForEach(categories, id: \.self) { category in
-                                    FilterButton(
-                                        title: category,
-                                        isSelected: category == selectedCategory,
-                                        onSelect: {
-                                            withAnimation{
-                                                selectedCategory = category
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }.padding(.vertical,-10)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 20) {
-                                ForEach(courses) { course in
-                                    NavigationLink(destination: CourseDetailScreen(course: course)) {
-                                        HomeCourseCard(
-                                            title: course.title,
-                                            category: course.category,
-                                            price: course.price,
-                                            rating: course.rating,
-                                            students: course.students
-                                        )
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
-                            }
-                            .padding(10)
-                        }
-                        
-                        SectionHeader(title: "Top Mentor", destination: AnyView(TopMentors()))
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 20) {
-                                ForEach(["Jiya", "Aman", "Rahul.J", "Manav"], id: \.self) { mentor in
-                                    MentorView(name: mentor,field: "",flag: "home")
-                                }
-                            }
-                        }.padding(.bottom,10)
+                        SectionHeader(title: "Top Mentor", destination: AnyView(TopMentors(mentor: mentor)))
+                        topMentors
                     }
                 }
             }
             .padding(.horizontal)
+            .task {
+                await GetData()
+            }
         }
+    }
+}
+
+extension HomeScreen {
+    
+    private var headerSection: some View {
+        HStack {
+            Text("Hi, ALEX")
+                .font(.title)
+                .fontWeight(.bold)
+            Spacer()
+            NavigationLink(destination: NotificationsScreen()) {
+                Image(systemName: "bell")
+                    .font(.title2)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.bottom, -3)
+    }
+    
+    private var searchSection: some View {
+        VStack(alignment: .leading) {
+            Text("What Would you like to learn Today?")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Text("Search Below.")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            SearchInput(Text: $searchText)
+        }
+    }
+    
+    private var discountBanner: some View {
+        VStack(alignment: .leading) {
+            Text("25% OFF*")
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            Text("Today's Special")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            Text("Get a Discount for Every\nCourse Order only Valid for\nToday!")
+                .font(.subheadline)
+                .foregroundColor(.white)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(
+            Color.blue
+                .cornerRadius(15)
+        )
+    }
+    
+    private var categoryFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 15) {
+                ForEach(techCategories, id: \.self) { category in
+                    FilterButton(
+                        title: category,
+                        isSelected: category == selectedCategory,
+                        onSelect: {
+                            withAnimation {
+                                selectedCategory = category
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        .padding(.vertical, -10)
+    }
+    
+    private var popularCourses: some View {
+        VStack {
+            if filteredCourses.isEmpty {
+                Text("No courses available for \(selectedCategory)")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding()
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) {
+                        ForEach(filteredCourses) { course in
+                            NavigationLink(destination: CourseDetailScreen(id: course.id)) {
+                                HomeCourseCard(
+                                    image: course.image,
+                                    title: course.title,
+                                    category: course.category,
+                                    price: course.price,
+                                    rating: "4.3",
+                                    students: "200"
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(10)
+                }
+            }
+        }
+    }
+    
+    private var topMentors: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 20) {
+                ForEach(mentor) { mentorItem in
+                    MentorView(image:mentorItem.image,name: mentorItem.name, field: mentorItem.email, flag: "home")
+                }
+            }
+        }
+        .padding(.bottom, 10)
     }
 }
 

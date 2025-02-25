@@ -1,10 +1,23 @@
 import SwiftUI
 
 struct CourseDetailScreen: View {
-    let course: HomeCourseModel
+    public let id:String
+    
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedTab = 0
     @Namespace private var tabAnimation
+    @State private var courseData: CourseDetailData? = nil
+    
+    func GetData()async{
+        do {
+            let res = try await GetCourseDetail(id:id)
+            if res.status == "success"{
+                courseData = res.data
+            }
+        }catch{
+            print(error.localizedDescription)
+        }
+    }
     
     let benefits = [
         "25 Lessons",
@@ -21,11 +34,11 @@ struct CourseDetailScreen: View {
         ZStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    CourseHeaderView(imageName: "images")
+                    CourseHeaderView(imageName: courseData?.image ?? "")
                     
-                    CourseInfoView(course: course, selectedTab: $selectedTab, namespace: tabAnimation)
+                    CourseInfoView(course: courseData, selectedTab: $selectedTab, namespace: tabAnimation)
                     
-                    InstructorView(instructorName: "Robert Jr", category: "Graphic Design",benefits: benefits)
+                    InstructorView(instructorName: courseData?.user.name, category: courseData?.user.email,benefits: benefits,imageName: courseData?.user.image)
                     Spacer()
                 }
             }
@@ -48,9 +61,15 @@ struct CourseDetailScreen: View {
                 .padding(.top, 50)
                 Spacer()
             }
+           
         }
         .navigationBarBackButtonHidden(true)
         .edgesIgnoringSafeArea(.top)
+        .onAppear() {
+            Task{
+                await GetData()
+            }
+        }
     }
 }
 
@@ -59,26 +78,34 @@ struct CourseHeaderView: View {
     
     var body: some View {
         ZStack(alignment: .leading) {
-            Image(imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 280)
-                .clipped()
-                .overlay(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.black.opacity(0.6), Color.black.opacity(0.3)]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .ignoresSafeArea()
+            if let url = URL(string: imageName) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+//                        .scaledToFill()
+                        .frame(height: 280)
+                        .clipped()
+                        .overlay(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.black.opacity(0.3)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .ignoresSafeArea()
+                } placeholder: {
+                    ProgressView()
+                        .frame(width: 260,height: 120)
+                        .foregroundColor(.black)
+                }
+            }
         }
         .frame(height: 280)
     }
 }
 
 struct CourseInfoView: View {
-    let course: HomeCourseModel
+    let course: CourseDetailData?
     @Binding var selectedTab: Int
     var namespace: Namespace.ID
     
@@ -86,7 +113,7 @@ struct CourseInfoView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text(course.category)
+                    Text(course?.category ?? "")
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: "E38B29"))
                     
@@ -96,13 +123,13 @@ struct CourseInfoView: View {
                         Image(systemName: "star.fill")
                             .font(.system(size: 14))
                             .foregroundColor(Color(hex: "FFCC00"))
-                        Text(course.rating)
+                        Text("40.6")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.black)
                     }
                 }
                 
-                Text(course.title)
+                Text(course?.title ?? "")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
                 
@@ -111,8 +138,7 @@ struct CourseInfoView: View {
                     InfoLabel(icon: "clock.fill", text: "42 Hours")
                     
                     Spacer()
-                    
-                    Text("\(course.price)/-")
+                    Text("\(course?.price ?? 00, specifier: "%.2f")/-")
                         .font(.system(size: 22, weight: .bold))
                         .foregroundColor(Color(hex: "3978E8"))
                 }
@@ -120,7 +146,7 @@ struct CourseInfoView: View {
             .padding()
             .background(Color.white)
             
-            CourseTabView(selectedTab: $selectedTab, namespace: namespace)
+            CourseTabView(selectedTab: $selectedTab, namespace: namespace,text:course?.description ?? "")
         }
     }
 }
@@ -128,6 +154,7 @@ struct CourseInfoView: View {
 struct CourseTabView: View {
     @Binding var selectedTab: Int
     var namespace: Namespace.ID
+    @State var text: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -147,7 +174,7 @@ struct CourseTabView: View {
             .background(Color.white)
             
             if selectedTab == 0 {
-                AboutCourseView()
+                AboutCourseView(text:text)
                     .padding(.horizontal)
                     .transition(.asymmetric(
                         insertion: .move(edge: .leading).combined(with: .opacity),
@@ -203,10 +230,11 @@ struct TabButton: View {
 
 struct AboutCourseView: View {
     @State private var appear = false
+    @State var text: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Graphic Design is a popular profession. This course covers design principles, color theory, typography, and more.")
+            Text(text)
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .opacity(appear ? 1 : 0)
@@ -267,9 +295,10 @@ struct CurriculumView: View {
 }
 
 struct InstructorView: View {
-    var instructorName: String
-    var category: String
+    var instructorName: String?
+    var category: String?
     var benefits:[String]
+    var imageName: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -279,22 +308,25 @@ struct InstructorView: View {
             
             NavigationLink (destination: UserProfile()){
                 HStack(spacing: 16) {
-                    Image("instructor-placeholder")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                        .background(
-                            Circle()
-                                .fill(Color.gray.opacity(0.2))
-                        )
-                    
+                    if let url = URL(string: imageName ?? "") {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                        } placeholder: {
+                            ProgressView()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.black)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(instructorName)
+                        Text(instructorName ?? "")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.black)
                         
-                        Text(category)
+                        Text(category ?? "")
                             .font(.system(size: 14))
                             .foregroundColor(.gray)
                     }
@@ -334,8 +366,8 @@ struct InfoLabel: View {
     }
 }
 
-struct CourseDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        CourseDetailScreen(course: HomeCourseModel(title: "Graphic Design Advanced", category: "Graphic Design", price: "850", rating: "4.2", students: "20"))
-    }
-}
+//struct CourseDetailView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        CourseDetailScreen(course: HomeCourseModel(title: "Graphic Design Advanced", category: "Graphic Design", price: "850", rating: "4.2", students: "20"))
+//    }
+//}

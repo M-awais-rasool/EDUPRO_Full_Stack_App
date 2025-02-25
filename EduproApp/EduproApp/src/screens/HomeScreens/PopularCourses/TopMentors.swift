@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TopMentors: View {
     @Environment(\.dismiss) private var dismiss
+    @State var mentor: [Mentor] = []
     
     var body: some View {
         ScrollView(.vertical,showsIndicators: false) {
@@ -9,8 +10,8 @@ struct TopMentors: View {
                 Spacer()
                     .frame(height: 20)
                 
-                ForEach(["Jiya", "Aman", "Rahul.J", "Manav", "Manav", "Manav", "Manav", "Manav", "Manav", "Manav"], id: \.self) { mentor in
-                    MentorView(name: mentor, field: "3D Design", flag: "Mentor")
+                ForEach(mentor) { mentorItem in
+                    MentorView(image:mentorItem.image,name: mentorItem.name, field: mentorItem.email, flag: "Mentor")
                 }
                 .padding(.bottom, 10)
             }

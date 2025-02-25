@@ -8,17 +8,27 @@
 import SwiftUI
 
 struct HomeCourseCard: View {
+    let image: String
     let title: String
     let category: String
-    let price: String
+    let price: Double
     let rating: String
     let students: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Image("images")
-                .frame(width: 260,height: 120)
-                .cornerRadius(10)
+            if let url = URL(string: image) {
+                AsyncImage(url: url) { image in
+                    image
+                        .frame(width: 260,height: 120)
+                        .cornerRadius(10)
+                } placeholder: {
+                    ProgressView()
+                        .frame(width: 260,height: 120)
+                        .foregroundColor(.black)
+                }
+            }
+            
             Text(category)
                 .font(.subheadline)
                 .foregroundColor(.orange)
@@ -27,7 +37,7 @@ struct HomeCourseCard: View {
                 .font(.headline)
                 .foregroundColor(.black)
             HStack {
-                Text(price)
+                Text("\(price, specifier: "%.2f")")
                     .foregroundColor(.blue)
                     .fontWeight(.bold)
                 Text("|")
@@ -48,6 +58,3 @@ struct HomeCourseCard: View {
     }
 }
 
-#Preview {
-    HomeScreen()
-}

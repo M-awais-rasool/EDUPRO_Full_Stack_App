@@ -77,6 +77,7 @@ struct UserProfile: View {
                         VStack(spacing: 16) {
                             ForEach(courses, id: \.title) { course in
                                 BookmarkCard(
+                                    image:"",
                                     category: course.category,
                                     title: course.title,
                                     price: course.price,

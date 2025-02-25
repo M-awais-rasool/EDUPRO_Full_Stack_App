@@ -32,7 +32,3 @@ struct SectionHeader: View {
         }
     }
 }
-
-#Preview {
-    HomeScreen()
-}

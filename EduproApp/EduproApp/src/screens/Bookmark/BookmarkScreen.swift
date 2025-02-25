@@ -36,6 +36,7 @@ struct BookmarkScreen: View {
                         }.padding(.vertical,10)
                         ForEach(courses, id: \.title) { course in
                             BookmarkCard(
+                                image:"",
                                 category: course.category,
                                 title: course.title,
                                 price: course.price,
