@@ -8,7 +8,7 @@
 import Foundation
 
 struct HomeCourse: Decodable {
-    let data: [Course]
+    let data: [Course]?
     let status: String
 }
 
@@ -17,7 +17,7 @@ struct Course:Identifiable,Decodable{
     let category :String
     let description :String
     let image :String
-    let isBookMark :Bool
+    var isBookMark :Bool
     let price:Double
     let title :String
 }
@@ -49,3 +49,15 @@ struct CourseDetailData:Identifiable,Decodable{
     let title :String
     let user:Mentor
 }
+
+
+struct KeyWordModel:Decodable{
+    let data: [KeyWordData]
+    let status: String
+}
+
+struct KeyWordData:Identifiable,Decodable{
+    let id :String
+    let word: String
+}
+

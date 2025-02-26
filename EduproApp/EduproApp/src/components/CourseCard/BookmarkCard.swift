@@ -31,6 +31,7 @@ struct BookmarkCard: View {
     let rating: Double
     let students: Int
     let isFeatured: Bool
+    var OnPress: () -> Void
     
     var body: some View {
         HStack() {
@@ -63,16 +64,23 @@ struct BookmarkCard: View {
                         )
                     Spacer()
                     
-                    Image(systemName: isFeatured ? "bookmark.fill" : "bookmark")
-                        .font(.system(size: 18))
-                        .foregroundColor(isFeatured ? .blue : .gray)
-                        .padding(.trailing, 2)
+                    Button(action:{
+                        OnPress()
+                    })
+                    {
+                        Image(systemName: isFeatured ? "bookmark.fill" : "bookmark")
+                            .font(.system(size: 18))
+                            .foregroundColor(isFeatured ? .blue : .gray)
+                            .padding(.trailing, 2)
+                    }
+                    
                 }
                 
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .lineLimit(1)
+                    .foregroundColor(.black)
                 Text("₹\(price)/-")
                     .font(.callout)
                     .foregroundColor(.blue)

@@ -83,7 +83,8 @@ struct UserProfile: View {
                                     price: course.price,
                                     rating: course.rating,
                                     students: course.students,
-                                    isFeatured: course.isFeatured
+                                    isFeatured: course.isFeatured,
+                                    OnPress: {}
                                 )
                             }
                         }

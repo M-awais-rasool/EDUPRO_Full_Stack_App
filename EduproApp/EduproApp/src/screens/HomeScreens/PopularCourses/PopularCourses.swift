@@ -2,14 +2,52 @@ import SwiftUI
 
 struct PopularCourses: View {
     @Environment(\.dismiss) private var dismiss
-    @State var courses: [Course] = []
+    @Binding var courses: [Course]
     @State private var selectedCategory: String = "All"
+    @State private var showToast = false
+    @State private var toastMessage = ""
     
     private var filteredCourses: [Course] {
         if selectedCategory == "All" {
             return courses
         } else {
             return courses.filter { $0.category == selectedCategory }
+        }
+    }
+    
+    func addBook(id: String) async {
+        do {
+            let res = try await addBookMark(id: id)
+            if res.status == "success" {
+                if let index = courses.firstIndex(where: { $0.id == id }) {
+                    DispatchQueue.main.async {
+                        courses[index].isBookMark = true
+                    }
+                    toastMessage = res.message
+                    showToast = true
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func removeBook(id: String) async {
+        do {
+            print("id",id)
+            let res = try await removeBookMark(id: id)
+            if res.status == "success" {
+                print(res.message)
+                if let index = courses.firstIndex(where: { $0.id == id }) {
+                    DispatchQueue.main.async {
+                        courses[index].isBookMark = false
+                    }
+                    toastMessage = res.message
+                    showToast = true
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
@@ -28,6 +66,7 @@ struct PopularCourses: View {
         .navigationTitle("Popular Courses")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .toast(isShowing: $showToast, message: toastMessage)
     }
     
     private var categoryFilterView: some View {
@@ -59,7 +98,7 @@ struct PopularCourses: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(filteredCourses) { course in
-                        NavigationLink(destination: CourseDetailScreen(id:course.id)) {
+                        NavigationLink(destination: CourseDetailScreen(id: course.id)) {
                             BookmarkCard(
                                 image: course.image,
                                 category: course.category,
@@ -67,7 +106,16 @@ struct PopularCourses: View {
                                 price: String(course.price),
                                 rating: 4.3,
                                 students: 200,
-                                isFeatured: course.isBookMark
+                                isFeatured: course.isBookMark,
+                                OnPress: {
+                                    Task {
+                                        if course.isBookMark {
+                                            await removeBook(id: course.id)
+                                        } else {
+                                            await addBook(id: course.id)
+                                        }
+                                    }
+                                }
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -86,8 +134,4 @@ struct PopularCourses: View {
                 .foregroundColor(.black)
         }
     }
-}
-
-#Preview {
-    PopularCourses()
 }

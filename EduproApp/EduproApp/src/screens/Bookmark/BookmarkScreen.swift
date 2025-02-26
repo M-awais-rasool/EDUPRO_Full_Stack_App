@@ -5,14 +5,43 @@ struct BookmarkScreen: View {
     @Environment(\.dismiss) private var dismiss
     let categories = ["All", "Graphic Design", "3D Design", "Arts & H"]
     @State private var selectedCategory: String = "All"
-    let courses = [
-        (category: "Graphic Design", title: "Graphic Design Advanced", price: "799", rating: 4.2, students: 7830, isFeatured: true),
-        (category: "Graphic Design", title: "Advertisement Design", price: "499", rating: 3.9, students: 12680, isFeatured: false),
-        (category: "Programming", title: "Graphic Design", price: "199", rating: 4.2, students: 990, isFeatured: true),
-        (category: "Web Development", title: "Web Developer Specialization", price: "899", rating: 4.9, students: 14580, isFeatured: false),
-        (category: "SEO & Marketing", title: "Digital Marketing Career Track", price: "299", rating: 4.2, students: 10252, isFeatured: true),
-        (category: "SEO & Marketing", title: "Digital Marketing Track", price: "299", rating: 4.2, students: 10252, isFeatured: true)
-    ]
+    @State private var courses: [Course]? = []
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    
+    func getData()async{
+        do{
+            let res = try await GetBookMarkCourse()
+            if res.status == "success"{
+                courses = res.data
+            }
+        }catch{
+            print(error.localizedDescription)
+        }
+    }
+    
+    func removeBook(id: String) async {
+        do {
+            print("id",id)
+            let res = try await removeBookMark(id: id)
+            if res.status == "success" {
+                print(res.message)
+                if let index = courses?.firstIndex(where: { $0.id == id }) {
+                    DispatchQueue.main.async {
+                        if var data = courses {
+                            data[index].isBookMark = false
+                            courses = data
+                        }
+                    }
+                    await getData()
+                    toastMessage = res.message
+                    showToast = true
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -34,16 +63,25 @@ struct BookmarkScreen: View {
                                 }
                             }
                         }.padding(.vertical,10)
-                        ForEach(courses, id: \.title) { course in
-                            BookmarkCard(
-                                image:"",
-                                category: course.category,
-                                title: course.title,
-                                price: course.price,
-                                rating: course.rating,
-                                students: course.students,
-                                isFeatured: course.isFeatured
-                            )
+                        if let data = courses{
+                            ForEach(data, id: \.id) { course in
+                                NavigationLink(destination: CourseDetailScreen(id: course.id)) {
+                                    BookmarkCard(
+                                        image: course.image,
+                                        category: course.category,
+                                        title: course.title,
+                                        price: String(course.price),
+                                        rating: 4.3,
+                                        students: 200,
+                                        isFeatured: course.isBookMark,
+                                        OnPress: {
+                                            Task {
+                                                await removeBook(id: course.id)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, 16)
@@ -51,8 +89,14 @@ struct BookmarkScreen: View {
                 }
                 
             }
+            .onAppear(){
+                Task{
+                    await getData()
+                }
+            }
             .navigationTitle("My Bookmark")
             .navigationBarTitleDisplayMode(.inline)
+            .toast(isShowing: $showToast, message: toastMessage)
         }
         .navigationBarBackButtonHidden(true)
     }

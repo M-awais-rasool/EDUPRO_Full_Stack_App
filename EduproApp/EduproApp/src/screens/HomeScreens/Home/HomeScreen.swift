@@ -5,7 +5,7 @@ struct HomeScreen: View {
     @State private var selectedCategory: String = "All"
     
     
-    @State private var courses: [Course] = []
+    @State private var courses: [Course]? = []
     @State private var mentor: [Mentor] = []
     
     func GetData() async {
@@ -27,11 +27,11 @@ struct HomeScreen: View {
         }
     }
     
-    private var filteredCourses: [Course] {
+    private var filteredCourses: [Course]? {
         if selectedCategory == "All" {
             return courses
         } else {
-            return courses.filter { $0.category == selectedCategory }
+            return courses?.filter { $0.category == selectedCategory }
         }
     }
     
@@ -45,8 +45,15 @@ struct HomeScreen: View {
                         searchSection
                         discountBanner
                         
-                        SectionHeader(title: "Popular Courses", destination: AnyView(PopularCourses(courses:courses)))
-                        
+                        SectionHeader(
+                            title: "Popular Courses",
+                            destination: AnyView(
+                                PopularCourses(courses: Binding<[Course]>(
+                                    get: { courses ?? [] },
+                                    set: { courses = $0 }
+                                ))
+                            )
+                        )
                         categoryFilter
                         popularCourses
                         
@@ -88,7 +95,7 @@ extension HomeScreen {
             Text("Search Below.")
                 .font(.subheadline)
                 .foregroundColor(.gray)
-            SearchInput(Text: $searchText)
+            SearchFocusedInput(text: $searchText)
         }
     }
     
@@ -135,7 +142,7 @@ extension HomeScreen {
     
     private var popularCourses: some View {
         VStack {
-            if filteredCourses.isEmpty {
+            if filteredCourses?.isEmpty ?? true {
                 Text("No courses available for \(selectedCategory)")
                     .font(.headline)
                     .foregroundColor(.gray)
@@ -143,18 +150,20 @@ extension HomeScreen {
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 20) {
-                        ForEach(filteredCourses) { course in
-                            NavigationLink(destination: CourseDetailScreen(id: course.id)) {
-                                HomeCourseCard(
-                                    image: course.image,
-                                    title: course.title,
-                                    category: course.category,
-                                    price: course.price,
-                                    rating: "4.3",
-                                    students: "200"
-                                )
+                        if let data = filteredCourses{
+                            ForEach(data) { course in
+                                NavigationLink(destination: CourseDetailScreen(id: course.id)) {
+                                    HomeCourseCard(
+                                        image: course.image,
+                                        title: course.title,
+                                        category: course.category,
+                                        price: course.price,
+                                        rating: "4.3",
+                                        students: "200"
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding(10)

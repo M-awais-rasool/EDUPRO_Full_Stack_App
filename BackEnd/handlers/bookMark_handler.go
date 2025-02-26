@@ -205,7 +205,7 @@ func GetBookMarks(c *gin.Context) {
 			"category":    course.Category,
 			"title":       course.Title,
 			"description": course.Description,
-			"imageURL":    course.ImageURL,
+			"image":       course.ImageURL,
 			"price":       course.Price,
 			"isBookMark":  course.IsBookMark,
 		}
