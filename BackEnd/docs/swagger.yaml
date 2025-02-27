@@ -141,6 +141,82 @@ paths:
       summary: Add Course
       tags:
       - Course
+  /Course/create-section/{id}/{title}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new section for a course
+      parameters:
+      - description: Section Title
+        in: path
+        name: title
+        required: true
+        type: string
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "404":
+          description: Course not found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Create Section
+      tags:
+      - Course
+  /Course/create-video:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new video for a course section
+      parameters:
+      - description: Video Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Video File
+        in: formData
+        name: video
+        required: true
+        type: file
+      - description: Course ID
+        in: formData
+        name: courseId
+        required: true
+        type: string
+      - description: Section ID
+        in: formData
+        name: sectionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Create Video
+      tags:
+      - Course
   /Course/get-course-details/{id}:
     get:
       consumes:
@@ -185,6 +261,33 @@ paths:
       security:
       - BearerAuth: []
       summary: Get All Courses
+      tags:
+      - Course
+  /Course/get-sections/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get all sections and their associated videos for a given course
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "401":
+          description: Unauthorized
+        "404":
+          description: Course not found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get Sections with Videos
       tags:
       - Course
   /Search/delete-keyword/{id}:
@@ -356,6 +459,64 @@ paths:
       summary: Get all mentors
       tags:
       - Mentors
+  /user/mentor-courses/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all courses assigned to a specific Mentor
+      parameters:
+      - description: Mentor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: No Courses Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get Courses by Mentor ID
+      tags:
+      - Profile
+  /user/mentor-details/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch user details by Mentor ID
+      parameters:
+      - description: Mentor ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: User Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get Mentor Details
+      tags:
+      - Profile
 securityDefinitions:
   BearerAuth:
     in: header

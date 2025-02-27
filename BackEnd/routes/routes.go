@@ -18,6 +18,11 @@ func SetRoutes() *gin.Engine {
 	router.GET("/Course/get-courses", handlers.GetCourse)
 	router.GET("/Course/get-course-details/:id", handlers.GetCourseDetailsById)
 
+	router.GET("/Course/get-sections/:id", handlers.GetSectionsWithVideos)
+
+	router.POST("/Course/create-section/:id/:title", handlers.CreateSection)
+	router.POST("/Course/create-video", handlers.CreateVideo)
+
 	router.GET("/mentor/get-mentors", handlers.GetMentors)
 
 	router.POST("/bookmarks/add-bookMark/:id", handlers.AddBookMark)
@@ -27,6 +32,9 @@ func SetRoutes() *gin.Engine {
 	router.GET("/Search/search-by-key/:key", handlers.SearchCoursesHandler)
 	router.GET("/Search/get-keyWords", handlers.GetKeyWord)
 	router.DELETE("/Search/delete-keyword/:id", handlers.DeleteKeyWord)
+
+	router.GET("/user/mentor-details/:id", handlers.GetUserDetails)
+	router.GET("/user/mentor-courses/:id", handlers.GetCoursesByUserID)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return router
