@@ -1,13 +1,76 @@
 import SwiftUI
 
 struct UserProfile: View {
+    var id : String? = ""
+    @State var mentorData: Mentor? = nil
+    @State var courseData: [Course]? = nil
     @State private var isFollowing = false
     @State private var selectedTab: Tab = .courses
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @Environment(\.presentationMode) var presentationMode
     enum Tab {
         case courses
         case ratings
     }
-    @Environment(\.presentationMode) var presentationMode
+    
+    func GetData()async{
+        do{
+            let newId = id ?? ""
+            let res = try await GetMentorDetails(id: newId)
+            if res.status == "success"{
+                mentorData = res.data
+            }
+            let courseRes = try await GetMentorCourse(id: newId)
+            if courseRes.status == "success"{
+                courseData = courseRes.data
+            }
+        }catch{
+            print(error.localizedDescription)
+        }
+    }
+    
+    func addBook(id: String) async {
+        do {
+            let res = try await addBookMark(id: id)
+            if res.status == "success" {
+                if let index = courseData?.firstIndex(where: { $0.id == id }) {
+                    DispatchQueue.main.async {
+                        if var data = courseData {
+                            data[index].isBookMark = true
+                            courseData = data
+                        }
+                    }
+                    toastMessage = res.message
+                    showToast = true
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func removeBook(id: String) async {
+        do {
+            print("id",id)
+            let res = try await removeBookMark(id: id)
+            if res.status == "success" {
+                print(res.message)
+                if let index = courseData?.firstIndex(where: { $0.id == id }) {
+                    DispatchQueue.main.async {
+                        if var data = courseData {
+                            data[index].isBookMark = false
+                            courseData = data
+                        }
+                    }
+                    toastMessage = res.message
+                    showToast = true
+                }
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
     
     var body: some View {
         ZStack() {
@@ -16,18 +79,36 @@ struct UserProfile: View {
                     .frame(height: 100)
                 VStack(spacing: 24) {
                     VStack(spacing: 12) {
-                        Circle()
-                            .fill(Color.black)
-                            .frame(width: 100, height: 100)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.blue, lineWidth: 3)
-                            )
+                        if let imageUrlString = mentorData?.image,
+                           let url = URL(string: imageUrlString) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .cornerRadius(50)
+                                case .failure:
+                                    Image(systemName: "person.fill")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .cornerRadius(50)
+                                        .foregroundColor(.gray)
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 100, height: 100)
+                                @unknown default:
+                                    EmptyView()
+                                }
+                            }
+                        }
                         
-                        Text("Mary Jones")
+                        Text(mentorData?.name ?? "")
                             .font(.system(size: 22, weight: .bold))
                         
-                        Text("Graphic Designer At Google")
+                        Text(mentorData?.email ?? "")
                             .font(.system(size: 16))
                             .foregroundColor(.secondary)
                         
@@ -75,17 +156,28 @@ struct UserProfile: View {
                     
                     if selectedTab == .courses {
                         VStack(spacing: 16) {
-                            ForEach(courses, id: \.title) { course in
-                                BookmarkCard(
-                                    image:"",
-                                    category: course.category,
-                                    title: course.title,
-                                    price: course.price,
-                                    rating: course.rating,
-                                    students: course.students,
-                                    isFeatured: course.isFeatured,
-                                    OnPress: {}
-                                )
+                            if let data = courseData{
+                                ForEach(data, id: \.title) { course in
+                                    BookmarkCard(
+                                        image:course.image,
+                                        category: course.category,
+                                        title: course.title,
+                                        price: String(course.price),
+                                        rating: 2.3,
+                                        students: 100,
+                                        isFeatured: course.isBookMark,
+                                        OnPress: {
+                                            Task {
+                                                if course.isBookMark {
+                                                    await removeBook(id: course.id)
+                                                } else {
+                                                    await addBook(id: course.id)
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                                
                             }
                         }
                         .padding(.horizontal)
@@ -121,8 +213,14 @@ struct UserProfile: View {
                 Spacer()
             }
         }
+        .onAppear(){
+            Task{
+                await GetData()
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .edgesIgnoringSafeArea(.top)
+        .toast(isShowing: $showToast, message: toastMessage)
     }
 }
 

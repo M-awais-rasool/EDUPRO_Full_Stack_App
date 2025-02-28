@@ -61,3 +61,7 @@ struct KeyWordData:Identifiable,Decodable{
     let word: String
 }
 
+struct MentorProfile:Decodable{
+    let data: Mentor
+    let status: String
+}

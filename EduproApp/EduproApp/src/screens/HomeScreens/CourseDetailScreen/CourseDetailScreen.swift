@@ -38,7 +38,7 @@ struct CourseDetailScreen: View {
                     
                     CourseInfoView(course: courseData, selectedTab: $selectedTab, namespace: tabAnimation)
                     
-                    InstructorView(instructorName: courseData?.user.name, category: courseData?.user.email,benefits: benefits,imageName: courseData?.user.image)
+                    InstructorView(instructorName: courseData?.user.name, category: courseData?.user.email,benefits: benefits,imageName: courseData?.user.image,id:courseData?.user.id)
                     Spacer()
                 }
             }
@@ -299,6 +299,7 @@ struct InstructorView: View {
     var category: String?
     var benefits:[String]
     var imageName: String?
+    var id: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -306,7 +307,7 @@ struct InstructorView: View {
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.black)
             
-            NavigationLink (destination: UserProfile()){
+            NavigationLink (destination: UserProfile(id:id)){
                 HStack(spacing: 16) {
                     if let url = URL(string: imageName ?? "") {
                         AsyncImage(url: url) { image in
