@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct SectionView: View {
-    let section: CourseSection
+    let section: VideoData
+    let index: Int
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Section \(section.number) - ")
+                Text("Section \(index + 1) - ")
                     .font(.headline)
                     .foregroundColor(.black)
                 
@@ -23,22 +24,27 @@ struct SectionView: View {
                 
                 Spacer()
                 
-                Text(section.duration)
+                Text("25 mint")
                     .font(.headline)
                     .foregroundColor(.blue)
             }
             .padding(.top, 20)
             .padding(.bottom, 10)
             
-            ForEach(section.modules) { module in
-                ModuleView(module: module)
+            if let videos = section.videos {
+                ForEach(Array(videos.enumerated()), id: \.element.id) { index, module in
+                    ModuleView(module: module,index:index)
+                }
             }
         }
     }
 }
 
+
 struct ModuleView: View {
-    let module: CourseModule
+    let module: VideoInnerData
+    let index: Int
+    @State private var navigateToVideo = false
     
     var body: some View {
         VStack {
@@ -48,7 +54,7 @@ struct ModuleView: View {
                         .fill(Color.gray.opacity(0.1))
                         .frame(width: 50, height: 50)
                     
-                    Text(module.number)
+                    Text("\(index + 1)")
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.gray)
                 }
@@ -56,33 +62,35 @@ struct ModuleView: View {
                     Text(module.title)
                         .font(.system(size: 16, weight: .semibold))
                     
-                    Text(module.duration)
+                    Text("5 min")
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
                 }
                 
                 Spacer()
-                if module.isLocked {
-                    Image(systemName: "lock.fill")
-                        .foregroundColor(.black)
-                        .frame(width: 30, height: 30)
-                } else {
-                    Circle()
-                        .fill(Color.blue)
-                        .frame(width: 30, height: 30)
-                        .overlay(
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.white)
-                        )
-                }
+                
+                Image(systemName: "lock.fill")
+                    .foregroundColor(.black)
+                    .frame(width: 30, height: 30)
             }
             .padding(.vertical, 12)
             .background(Color.white)
+            .onTapGesture {
+                navigateToVideo = true
+            }
             
             Divider()
                 .padding(.leading, 75)
         }
+        .navigationDestination(isPresented: $navigateToVideo) {
+            if let validURL = URL(string: module.video) {
+                VideoPlayerView(videoURL: validURL)
+            } else {
+                Text("Invalid Video URL")
+            }
+        }
     }
 }
+
+
 

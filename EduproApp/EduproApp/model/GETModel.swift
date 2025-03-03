@@ -65,3 +65,21 @@ struct MentorProfile:Decodable{
     let data: Mentor
     let status: String
 }
+
+
+struct Vides:Decodable{
+    let data: [VideoData]?
+    let status: String
+}
+
+struct VideoData:Identifiable,Decodable{
+    let id : String
+    let title: String
+    let videos :[VideoInnerData]?
+}
+
+struct VideoInnerData:Identifiable,Decodable{
+    let id :String
+    let title:String
+    let video:String
+}

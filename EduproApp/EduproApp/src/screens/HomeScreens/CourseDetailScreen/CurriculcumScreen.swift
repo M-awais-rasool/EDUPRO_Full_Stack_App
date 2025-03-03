@@ -2,14 +2,30 @@ import SwiftUI
 
 struct CurriculcumScreen: View {
     @Environment(\.dismiss) private var dismiss
+    let id:String
+    let price:Double
+    @State private var Data:[VideoData]? = nil
+    
+    func GetData()async{
+        do{
+            let res = try await GetVideos(id: id)
+            if res.status == "success" {
+                Data = res.data
+            }
+        }catch{
+            print(error.localizedDescription)
+        }
+    }
     
     var body: some View {
         VStack {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
-                        ForEach(sections) { section in
-                            SectionView(section: section)
+                        if let sections = Data{
+                            ForEach(Array(sections.enumerated()), id: \.element.id) { index, section in
+                                SectionView(section: section, index: index)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -18,8 +34,13 @@ struct CurriculcumScreen: View {
             }
             
             Spacer()
-            Buttons(label: "Enroll Course - $55", onPress: {})
+            Buttons(label: "Enroll Course - $\(price)", onPress: {})
                 .padding()
+        }
+        .onAppear(){
+            Task{
+                await GetData()
+            }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle("Curriculcum", displayMode: .inline)
@@ -34,6 +55,6 @@ struct CurriculcumScreen: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        CurriculcumScreen()
+        CurriculcumScreen(id:"",price: 0.0)
     }
 }

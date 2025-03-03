@@ -61,7 +61,7 @@ struct CourseDetailScreen: View {
                 .padding(.top, 50)
                 Spacer()
             }
-           
+            
         }
         .navigationBarBackButtonHidden(true)
         .edgesIgnoringSafeArea(.top)
@@ -82,7 +82,7 @@ struct CourseHeaderView: View {
                 AsyncImage(url: url) { image in
                     image
                         .resizable()
-//                        .scaledToFill()
+                    //                        .scaledToFill()
                         .frame(height: 280)
                         .clipped()
                         .overlay(
@@ -146,7 +146,7 @@ struct CourseInfoView: View {
             .padding()
             .background(Color.white)
             
-            CourseTabView(selectedTab: $selectedTab, namespace: namespace,text:course?.description ?? "")
+            CourseTabView(selectedTab: $selectedTab, namespace: namespace,text:course?.description ?? "",id:course?.id,price:course?.price)
         }
     }
 }
@@ -155,6 +155,8 @@ struct CourseTabView: View {
     @Binding var selectedTab: Int
     var namespace: Namespace.ID
     @State var text: String
+    var id:String?
+    var price:Double?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -182,7 +184,7 @@ struct CourseTabView: View {
                     ))
                     .id("about")
             } else {
-                CurriculumView()
+                CurriculumView(id:id,price:price ?? 0.0)
                     .padding(.horizontal)
                     .transition(.asymmetric(
                         insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -261,11 +263,13 @@ struct AboutCourseView: View {
 
 struct CurriculumView: View {
     @State private var appear = false
+    var id :String?
+    var price:Double
     
     var body: some View {
         VStack(spacing: 0) {
             ForEach(Array(detailSections.enumerated()), id: \.element.id) { index, section in
-                SectionView(section: section)
+                SectionView(section: section,index: index)
                     .opacity(appear ? 1 : 0)
                     .offset(y: appear ? 0 : 10)
                     .animation(
@@ -274,7 +278,7 @@ struct CurriculumView: View {
                     )
             }
             
-            NavigationLink(destination: CurriculcumScreen()) {
+            NavigationLink(destination: CurriculcumScreen(id:id ?? "",price:price)) {
                 Text("See All")
                     .foregroundColor(.blue)
                     .padding(.top)
